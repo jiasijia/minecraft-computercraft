@@ -19,7 +19,7 @@ function setTable(name, func, xmin, xmax, ymin, ymax)
 end
 
 function heading(text,color)
-  if color == nil then color = color.white
+  if color == nil then color = colors.white
   term.setTextColor(color);
   
   w, h = term.getSize()
@@ -117,7 +117,7 @@ function checkxy(x, y, type)
           data["func"](name)
         end
         return name,data
-	    end
+      end
     end
   end
 end
@@ -130,10 +130,10 @@ heading("Please input the password")
 while true do
   local e, side, x, y = os.pullEvent("mouse_click")
   local name, data = checkxy(x,y)
-  if name ~= nil then fill(name, color.red, data)
+  if name ~= nil then fill(name, colors.red, data) end
   
   local e, side, x, y = os.pullEvent("mouse_up")
   local name, data = checkxy(x, y, 'up')
-  if name ~= nil then fill(name, color.lime, data)
+  if name ~= nil then fill(name, colors.lime, data) end
   sleep(0.1)
 end
