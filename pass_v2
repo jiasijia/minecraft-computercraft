@@ -130,10 +130,10 @@ heading("Please input the password")
 while true do
   local e, side, x, y = os.pullEvent("mouse_click")
   local name, data = checkxy(x,y)
-  if name ~= nil then fill(name, colors.red, data) end
-  
-  local e, side, x, y = os.pullEvent("mouse_up")
-  local name, data = checkxy(x, y, 'up')
-  if name ~= nil then fill(name, colors.lime, data) end
+  if name ~= nil then fill(name, colors.red, data)
+    local e, side, x, y = os.pullEvent("mouse_up")
+    if e ~= nil then fill(name, colors.lime, data)
+    end
+  end
   sleep(0.1)
 end
