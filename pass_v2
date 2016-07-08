@@ -1,5 +1,6 @@
 -- Thanks for use the program 
---by Xia_ST
+-- by Xia_ST
+-- update by papapa_
 
 term.setTextColor(colors. white)
 local button = {}
@@ -30,6 +31,8 @@ end
 function func(arg)
 	if arg>='0' and arg<= '9' then
 		input = input .. arg
+		-- ouput = string.gsub(input, "%d", "*");
+		-- heading(output);
 	elseif arg == 'C' then
 		input = ""
 	elseif arg == 'E' then
