@@ -28,8 +28,10 @@ function heading(text,color)
   term.setTextColor(colors. white)
   local a = string.find(text, "^*+$")
   if a ~= nil then
-    term.setCursorPos((w+string.len(text))/2+1+1, 1)
+    term.setCursorPos((w+string.len(text))/2+1, 1)
     term.setCursorBlink(true)
+  else 
+    term.setCursorBlink(false)
   end
 end
 
