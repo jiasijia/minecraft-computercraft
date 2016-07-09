@@ -29,6 +29,7 @@ function heading(text,color)
 end
 
 function func(arg)
+        changeColor(args, data)
 	if arg>='0' and arg<= '9' then
 		input = input .. arg
 		-- ouput = string.gsub(input, "%d", "*");
@@ -54,6 +55,16 @@ function func(arg)
 			heading("Please input the password")
 		end
 	end 
+end
+
+function changeColor(name, data)
+  if name ~= nil then 
+    fill(name, colors.red, data)
+    local e, side, x, y = os.pullEvent("mouse_up")
+    if e ~= nil then 
+      fill(name, colors.lime, data)
+    end
+  end
 end
 
 function fillTable()
@@ -114,7 +125,7 @@ function checkxy(x, y, type)
       if x>=data["xmin"] and x<=data["xmax"] then
         if type == 'up' then 
         else
-          data["func"](name)
+          data["func"](name, data)
         end
         return name,data
       end
@@ -130,12 +141,5 @@ heading("Please input the password")
 while true do
   local e, side, x, y = os.pullEvent("mouse_click")
   local name, data = checkxy(x,y)
-  if name ~= nil then 
-    fill(name, colors.red, data)
-    local e, side, x, y = os.pullEvent("mouse_up")
-    if e ~= nil then 
-      fill(name, colors.lime, data)
-    end
-  end
   sleep(0.1)
 end
