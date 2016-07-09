@@ -28,8 +28,8 @@ function heading(text,color)
   term.setTextColor(colors. white)
 end
 
-function func(arg)
-        changeColor(args, data)
+function func(arg, data)
+        changeColor(arg, data)
 	if arg>='0' and arg<= '9' then
 		input = input .. arg
 		-- ouput = string.gsub(input, "%d", "*");
