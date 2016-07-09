@@ -32,11 +32,13 @@ function func(arg, data)
         changeColor(arg, data)
 	if arg>='0' and arg<= '9' then
 		input = input .. arg
-		ouputStar = string.gsub(input, "%d", "*");
+		outputStar = string.gsub(input, "%d", "*");
 		heading	("                                                   ")
-		heading(input);
+		heading(outputStar);
 	elseif arg == 'C' then
 		input = ""
+		heading	("                                                   ")
+		heading("Please input the password")
 	elseif arg == 'E' then
 		if input == password then
 			heading	("                                                   ")
