@@ -26,6 +26,10 @@ function heading(text,color)
   term.setCursorPos((w-string.len(text))/2+1, 1)
   term.write(text)
   term.setTextColor(colors. white)
+  if arg>='0' and arg<= '9' then
+    term.setCursorPos((w+string.len(text))/2+1+1, 1)
+    term.setCursorBlink(true)
+  end
 end
 
 function func(arg, data)
