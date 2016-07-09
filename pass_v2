@@ -32,8 +32,9 @@ function func(arg, data)
         changeColor(arg, data)
 	if arg>='0' and arg<= '9' then
 		input = input .. arg
-		-- ouput = string.gsub(input, "%d", "*");
-		-- heading(output);
+		ouputStar = string.gsub(input, "%d", "*");
+		heading	("                                                   ")
+		heading(input);
 	elseif arg == 'C' then
 		input = ""
 	elseif arg == 'E' then
@@ -105,12 +106,6 @@ function fill(text, color, bData)
   term.setBackgroundColor(colors.black)
 end
 
-function convertColor(data, color)
-  term.setBackgroundColor(color)
-  local yspot = math.floor((data["ymin"]+data["ymax"])/2)
-  local xpot = math.floor((data["xmax"]-data["xmin"]-string.len(data[name]))/2+1)
-end
-
 function screen()
   local currColor
   for name, data in pairs(button) do
@@ -123,11 +118,7 @@ function checkxy(x, y, type)
   for name, data in pairs(button) do
     if y>=data["ymin"] and y<=data["ymax"] then
       if x>=data["xmin"] and x<=data["xmax"] then
-        if type == 'up' then 
-        else
           data["func"](name, data)
-        end
-        return name,data
       end
     end
   end
@@ -140,6 +131,6 @@ screen()
 heading("Please input the password")
 while true do
   local e, side, x, y = os.pullEvent("mouse_click")
-  local name, data = checkxy(x,y)
+  checkxy(x,y)
   sleep(0.1)
 end
