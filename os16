@@ -1,0 +1,189 @@
+local w,h = term.getSize()
+ 
+function fwrite(path, text)
+    local file = assert(io.open(path, "w"))
+    file:write(text)
+    file:close()
+end
+ 
+local files = {
+    "startup",
+    "startupAlternative",
+    ".ccYouTube/apis/box",
+    ".ccYouTube/apis/extStrLib",
+    ".ccYouTube/apis/loadingScreen",
+    ".ccYouTube/logos/ccytLogo",
+    ".ccYouTube/logos/home",
+    ".opt/GUI/config._conf",
+    ".opt/GUI/icoDName._conf",
+    ".opt/GUI/icoLoc._conf",
+    ".opt/GUI/icoName._conf",
+    ".opt/GUI/icoRun._conf",
+    ".opt/start/bios",
+    ".opt/start/bootloader",
+    ".sys/API/kernal",
+    ".sys/Backgrounds/advcomp.bg",
+    ".sys/Backgrounds/normcomp.bg",
+    ".sys/GUI/desktop",
+    ".sys/GUI/startmenu._GUI",
+    ".sys/GUI/startmenuAlternative._GUI",
+    ".sys/Programs/ccYT.16",
+    ".sys/Programs/fMan.16",
+    ".sys/Programs/mouse.cfg",
+    ".sys/Programs/npp.16",
+    ".sys/icons/OS16.ico",
+    ".sys/icons/icon1.nfp",
+    ".sys/icons/icon2.nfp",
+    ".sys/icons/icon3.nfp",
+    ".sys/logon/usr_login",
+    ".var/OSver/ver.16",
+    ".var/Logon/uacc._acc"
+}
+ 
+local folders = {
+    ".ccYouTube",
+    ".ccYouTube/apis/",
+    ".ccYouTube/downloads/",
+    ".ccYouTube/logos/",
+    ".ccYouTube/recycleBin/",
+    ".opt",
+    ".opt/GUI/",
+    ".opt/start/",
+    ".sys/API/",
+    ".sys/Backgrounds/",
+    ".sys/GUI/",
+    ".sys/Programs/",
+    ".sys/icons/",
+    ".sys/logon/",
+    ".var",
+    ".var/OSver/",
+    ".var/Logon/"
+}
+ 
+local urls = {
+    "http://erik0004.890m.com/cc/OS16/startup",
+    "http://erik0004.890m.com/cc/OS16/startupAlternative",
+    "http://erik0004.890m.com/cc/OS16/.ccYouTube/apis/box",
+    "http://erik0004.890m.com/cc/OS16/.ccYouTube/apis/extStrLib",
+    "http://erik0004.890m.com/cc/OS16/.ccYouTube/apis/loadingScreen",
+    "http://erik0004.890m.com/cc/OS16/.ccYouTube/logos/ccytLogo",
+    "http://erik0004.890m.com/cc/OS16/.ccYouTube/logos/home",
+    "http://erik0004.890m.com/cc/OS16/.opt/GUI/config._conf",
+    "http://erik0004.890m.com/cc/OS16/.opt/GUI/icoDName._conf",
+    "http://erik0004.890m.com/cc/OS16/.opt/GUI/icoLoc._conf",
+    "http://erik0004.890m.com/cc/OS16/.opt/GUI/icoName._conf",
+    "http://erik0004.890m.com/cc/OS16/.opt/GUI/icoRun._conf",
+    "http://erik0004.890m.com/cc/OS16/.opt/start/bios",
+    "http://erik0004.890m.com/cc/OS16/.opt/start/bootloader",
+    "http://erik0004.890m.com/cc/OS16/.sys/API/kernal",
+    "http://erik0004.890m.com/cc/OS16/.sys/Backgrounds/advcomp.bg",
+    "http://erik0004.890m.com/cc/OS16/.sys/Backgrounds/normcomp.bg",
+    "http://erik0004.890m.com/cc/OS16/.sys/GUI/desktop",
+    "http://erik0004.890m.com/cc/OS16/.sys/GUI/startmenu._GUI",
+    "http://erik0004.890m.com/cc/OS16/.sys/GUI/startmenuAlternative._GUI",
+    "http://erik0004.890m.com/cc/OS16/.sys/Programs/ccYT.16",
+    "http://erik0004.890m.com/cc/OS16/.sys/Programs/fMan.16",
+    "http://erik0004.890m.com/cc/OS16/.sys/Programs/mouse.cfg",
+    "http://erik0004.890m.com/cc/OS16/.sys/Programs/npp.16",
+    "http://erik0004.890m.com/cc/OS16/.sys/icons/OS16.ico",
+    "http://erik0004.890m.com/cc/OS16/.sys/icons/icon1.nfp",
+    "http://erik0004.890m.com/cc/OS16/.sys/icons/icon2.nfp",
+    "http://erik0004.890m.com/cc/OS16/.sys/icons/icon3.nfp",
+    "http://erik0004.890m.com/cc/OS16/.sys/logon/usr_login",
+    "http://erik0004.890m.com/cc/OS16/.var/OSver/ver.16",
+    "http://erik0004.890m.com/cc/OS16/.var/Logon/uacc._acc"
+}
+ 
+local function startInstaller()
+    if not http then
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setTextColor(colors.red)
+    term.setCursorPos(1,1)
+    print("You need the http API to run this installer.")
+    end
+    if not term.isColor() or term.isColour() or term.isColor or term.isColour then
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setTextColor(colors.red)
+    term.setCursorPos(1,1)
+    print("You need an Advanced Computer to use this OS.")
+    end
+    for i,v in pairs(folders) do
+    if fs.exists(v) then
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setTextColor(1)
+    term.setCursorPos(math.floor(w-#"Found an older version of OS'16,")/2,9)
+    print("Found an older version of OS'16,")
+    term.setCursorPos(math.floor(w-#"deleting it...")/2,10)
+    print("deleting it...")
+    sleep(1)
+    fs.delete(v)
+    end
+    end
+    for i,v in pairs(files) do
+    if fs.exists(v) then
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setTextColor(1)
+    term.setCursorPos(math.floor(w-#"Found an older version of OS'16,")/2,9)
+    print("Found an older version of OS'16,")
+    term.setCursorPos(math.floor(w-#"deleting it...")/2,10)
+    print("deleting it...")
+    sleep(1)
+    fs.delete(v)
+    end
+    end
+end
+ 
+local function install()
+    startInstaller()
+    term.setBackgroundColor(2048)
+    term.clear()
+    term.setTextColor(1)
+    term.setCursorPos(math.floor(w-#"OS'16 Installer")/2,1)
+    print("OS'16 Installer")
+    term.setCursorPos(1,2)
+    print(string.rep("-",51))
+    term.setCursorPos(math.floor(w-#"Installing OS'16...")/2,9)
+    print("Installing OS'16...")
+    term.setCursorPos(math.floor(w-#"Making the OS Folders...")/2,10)
+    print("Making the OS Folders...")
+    for i,v in pairs(folders) do
+    fs.makeDir(v)
+    end
+    sleep(1)
+    term.setCursorPos(math.floor(w-#"Fetching files from the download website...")/2,10)
+    print("Fetching files from the download website...")
+    for i,v in pairs(files) do
+    dl = http.get(urls[i])
+    fwrite(v, dl.readAll())
+        --numbr = 0
+        --for i = 1,33 do
+            --term.setCursorPos(math.floor(w-#"  %")/2,11)
+            --print(numbr.."%")
+            --sleep(0.25)
+            --numbr = numbr+3,23
+        --end
+    --term.setCursorPos(math.floor(w-#"Downloading File : "..files[i])/2,11)
+    --print("Downloading File : "..files[i])
+        --term.setCursorPos(math.floor(w-#"   %")/2,11)
+        --print("100%")
+    end
+    sleep(1)
+    term.setCursorPos(1,10)
+    term.setBackgroundColor(2048)
+    term.clearLine()
+    term.setCursorPos(math.floor(w-#"OS'16 is succesfully installed. Rebooting..")/2,9)
+    print("OS'16 is succesfully installed. Rebooting..")
+    if fs.exists("/install") then
+    fs.delete("/install")
+    sleep(2)
+    os.reboot()
+    else
+    sleep(2)
+    os.reboot()
+    end
+end
+install()
