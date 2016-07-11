@@ -2,6 +2,7 @@
 -- by Xia_ST
 -- update by papapa_
 
+os.pullEvent = os.pullEventRaw
 term.setTextColor(colors. white)
 local button = {}
 term.setBackgroundColor(colors.black)
