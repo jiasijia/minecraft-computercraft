@@ -1,1 +1,1 @@
-Thanks for watching my code;
+THANKS FOR NOTHING
