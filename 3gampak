@@ -1,0 +1,1172 @@
+--[[
+3 Game Pak by CrazedProgrammer
+The MIT License (MIT)
+Copyright (c) 2016 CrazedProgrammer
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+]]
+
+local screenwidth, screenheight = term.getSize()
+local screenoffset = 19 - screenheight
+if not (_HOST and screenwidth == 51 and (screenheight == 19 or screenheight == 18) and term.isColor()) then
+	if term.isColor() then
+		term.setTextColor(colors.red)
+	end
+	print("This program is not compatible with your current setup.\nRequirements:\n- ComputerCraft version 1.76 or newer\n- Must be ran on an Advanced Computer or a Command Computer\n- No more than 1 multishell instance")
+	return
+end
+
+-- Assets
+
+local img = {
+	crazed = "8888888888888888\n8f000f000fff00f7\n80ffff0ff0f0ff07\n80ffff000ff00007\n8f000f0ff0f0ff07\n8ffffffffffffff7\n80000f0000f000f7\n8ff0ff000ff0ff07\n8f0fff0ffff0ff07\n80000f0000f000f7\n8777777777777777\n       77\n      7777\n  888888888888\n  8777778778b8\n  888888888888"
+,	madeby = "000 00                      00000\n0  0  0         0           0    0\n0  0  0         0           0    0\n0  0  0  000  000  000      00000  0   0\n0  0  0 0  0 0  0 00000     0    0  0 0\n0  0  0 0  0 0  0 0         0    0   0\n0     0  000  000  000      00000    0\n                                    0\n                                   0\n"
+,	title1 = "1111111111\n1111111111\n       111\n     1111\n   1111\n 1111\n1111111111\n1111111111\n       111\n     1111\n    1111\n  1111\n 1111\n111\n11\n"
+,	title2 = "  00000\n 0000000\n000    0\n00        00000   00 00 000    0000\n00  0000  000000  0000000000  000000\n00  0000      00  00  00  00  00  00\n00    00    0000  00  00  00  000000\n000   00  00  00  00  00  00  00\n 0000000  000000  00  00  00  000000\n  00000    00000  00  00  00   00000\n"
+,	title3 = "000000           00\n0000000          00\n00   00          00\n00   00  00000   00   00\n00   00  000000  00  00\n0000000      00  00 00\n000000     0000  0000\n00       00  00  00 00\n00       000000  00  00\n00        00000  00   00\n"
+,	help = "bbbbbbbbbbbbbbbbbb\nb0b0b000b0bbb00bbb\nb000b00bb0bbb0b0bb\nb0b0b0bbb0bbb00bbb\nb0b0b000b000b0bbbb\nbbbbbbbbbbbbbbbbbb\n"
+,	exit = "eeeeeeeeeeeeeeeeee\ne000e0e0e000e000ee\ne00eee0eee0eee0eee\ne0eeee0eee0eee0eee\ne000e0e0e000ee0eee\neeeeeeeeeeeeeeeeee\n"
+,	drdan = "333333333333333333333333333333\n3eeee33eee3333eeee33eee33eeee3\n33e33e3e33e3333e33e33e3e33e33e\n33e33e3e33e3333e33e33e3e33e33e\n33e33e3eee33333e33e3eeeee3e33e\n33e33e3e3e33333e33e3e333e3e33e\n3eeee33e33e333eeee43e33be3e33e\n33ee33333333e333ee4433bbee3333\n33ee3333333333333e43333be33333\n3b4333eebb3333bb333343343333ee\nbb44b3eebb3333bb333343343333ee\n3b433beebb3333bb333344443333ee\neeb7b734e333333e43bb47473b4333\nee7bbb44ee3333ee44bb4444bb4433\neeb77b34e333333e43bb47773b4333\nbbbbbbbb34b33333ee3343b4333333\nb3b33b3b44bb3333ee3344b4433333\n33bb3bb334b33333ee3333bb333333\n9be9999eb9ee999994b99999999944\nbbee99eebbee999944bb9999999944\n9be9999eb9ee999994b9cccccc9944\n9994b94499999eb9999c6666669999\n9944bb449999eebb999c6666669999\n9994b94499999eb9999c7777771119\n44e7e7ee9999999991167767761111\n44eeeeeb9999999111166666661111\n44e7eeeb9999991111166666661111\nbb9e77e994e9991111880000081111\nbb9e99e944ee911110008000800011\nbbee99ee94e9911110000888000011\nee999be99999911110000070000011\nee99bbee9999911110000700000011\nee999be99999991110000700000011\n"
+,	font1 = "0000    0 0000 0000 0  0 0000 0000 0000 0000 0000\n0  0    0    0    0 0  0 0    0       0 0  0 0  0\n0  0    0 0000 0000 0000 0000 0000    0 0000 0000\n0  0    0 0       0    0    0 0  0    0 0  0    0\n0000    0 0000 0000    0 0000 0000    0 0000 0000\n"
+,	font2 = " 00  000   000 000  0000 0000  000 0  0 0000 0000 0  0 0    0000 0  0  00  000   00  000   000 0000 0  0 0  0 0  0 0  0 0  0 0000\n0  0 0  0 0    0  0 0    0    0    0  0   0     0 0 0  0    0000 00 0 0  0 0  0 0  0 0  0 0      0  0  0 0  0 0 00 0  0 0  0    0\n0000 000  0    0  0 0000 0000 0 00 0000   0     0 00   0    0 00 0 00 0  0 0  0 0  0 000   00    0  0  0 0  0 0 00  00   000   0\n0  0 0  0 0    0  0 0    0    0  0 0  0   0     0 0 0  0    0 00 0  0 0  0 000  0 00 0 0     0   0  0  0  00  0000 0  0    0  0\n0  0 000   000 000  0000 0     000 0  0 0000 000  0  0 0000 0  0 0  0  00  0     000 0  0 000    0   00   00   0 0 0  0 000  0000\n"
+,	leftsidepinkpipe = "f02\nf02\nf02"
+,	rightsidepinkpipe = "20f\n20f\n20f"
+,	bottomsidepinkpipe = "00\nff\nff"
+,	topsidepinkpipe = "ff\nff\n00"
+,	lefttoppinkpipe = "ff\nff\nf0"
+,	righttoppinkpipe = "ff\nff\n0f"
+,	leftbottompinkpipe = "f0\nff\nff"
+,	rightbottompinkpipe = "0f\nff\nff"
+,	decreasearrow = "  b\n bb\nbbb\n bb\n  b"
+,	increasearrow = "b  \nbb \nbbb\nbb \nb  "
+,	leftsidecyanpipe = "9079\n9079\n9079"
+,	rightsidecyanpipe = "9709\n9709\n9709"
+,	bottomsidecyanpipe = "99\n77\n99"
+,	topsidecyanpipe = "99\n77\n99"
+,	lefttopcyanpipe = "9999\n9077\n9079"
+,	righttopcyanpipe = "9999\n7709\n9709"
+,	leftbottomcyanpipe = "9079\n9077\n9999"
+,	rightbottomcyanpipe = "9709\n7709\n9999"
+,	drdanlevel = "f    ffff f  f ffff f\nf    f    f  f f    f\nf    ffff f  f ffff f\nf    f     ff  f    f\nffff ffff  ff  ffff ffff\n"
+,	drdanspeed = " fff fff  ffff ffff fff\nf    f  f f    f    f  f\n ff  f  f ffff ffff f  f\n   f fff  f    f    f  f\nfff  f    ffff ffff fff\n"
+,	drdanvirus = "f  f ffff fff  f  f  fff\nf  f   f  f  f f  f f\nf  f   f  fff  f  f  ff\n ff    f  f f  f  f    f\n ff  ffff f  f  ff  fff\n"
+,	drdanvirus1 = "e \n e\ne "
+,	drdanvirus2 = " e \ne \n e"
+,	drdanblob = "ee\nee\nee"
+,	drdanpillleft = " e\nee\n e"
+,	drdanpillright = "e \nee\ne "
+,	drdanpilltop = "  \nee\nee"
+,	drdanpillbottom = "ee\nee\n  "
+, 	drdantop = "ffff  ff  fff\n  f  f  f f  f\n  f  f  f f  f\n  f  f  f fff\n  f   ff  f\n"
+,	drdanscore = " fff  fff  ff  fff  ffff\nf    f    f  f f  f f\n ff  f    f  f fff  ffff\n   f f    f  f f f  f\nfff   fff  ff  f  f ffff"
+,	drdandrdan = "   cccccc\n  c666666\n  c666666\n  c777777\n  6776776\n  6666666\n  6666666\n 88000008\n00080008000\n00008880000\n00000700000\n00007000000\n00007000000\n"
+,	drdanbigpillleft = " eee\neeee\neeee\n eee"
+,	drdanbigpillright = "eee \neeee\neeee\neee "
+,	stackerdx = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nbb88b888bb8bbb88b8b8b888b88bbb\nb8bbbb8bb8b8b8bbb8b8b8bbb8b8bb\nbb8bbb8bb888b8bbb88bb888b88bbb\nbbb8bb8bb8b8b8bbb8b8b8bbb8b8bb\nb88bbb8bb8b8bb88b8b8b888b8b8bb\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nbbbbbbbbbbbbb11111bbbb11bbb11b\nbbbbbbbbbbbbb111111bbb11bbb11b\nbbbbbbbbbbbbb11bb111bbb11b11bb\nbbbbbbbbbbbbb11bbb11bbbb111bbb\nbbbbbbbbbbbbb11bbb11bbbb111bbb\nbbbbbbbbbbbbb11bbb11bbbb111bbb\nbbbbbbbbbbbbb11bb111bbb11b11bb\nbbbbbbbbbbbbb111111bbb11bbb11b\nbbbbbbbbbbbbb11111bbbb11bbb11b\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nbb00000bbbbbbbbbbbbbbbbbbbbbbb\nbbbbbbbbbbbb000000bbbbbbbbbbbb\nbbbbbbbbbbb0000000bbbbbbbbbbbb\nbbbbbbbbbb000000000bbbbbbbbbbb\nbbbbbbbbbb000000000bbbbbbbbbbb\nbbbbbbbbb0000000000bbbbbbbbbbb\nbbbbbbbbb000000000000bbbbbbbbb\nbbbbbbbb000000000000000bbbbbbb\nbbbbbbb0000000000000000bbbbbbb\n"
+,	bhbird1 = "          dd\n         dddd\n         d00d\n         0ff0\n         ffff\n        ffffff\n       ffffffff\n      ffffffffff\n      ffffffffff\n     fffff00fffff\n    fff  1001 ffff\n    ff  11  11  ff\n        11  11\n"
+,	bhbird2 = "          dd\n         dddd\n         d00d\n         0ff0\n         ffff\n   fff  ffffff  fff\n ffffffffffffffffffff\nffffffffffffffffffffff\nff    ffffffffff    ff\n        ff00ff\n         1001\n        11  11\n        11  11\n"
+,	bhbird3 = "          dd\n  ff     dddd     ff\n fff     d00d     fff\n ffff    0ff0    ffff\n  fffff  ffff  fffff\n   ffffffffffffffff\n    ffffffffffffff\n     ffffffffffff\n       ffffffff\n        ff00ff\n         1001\n        11  11\n        11  11\n"
+,	bhdead1 = "     ff      \n  110ff   fff\n1 110ff  ffff\n10000ff0fffff\n 000ff0fffff \n 000fffffff  \n  00ffffff   \n   0ffff     \n   ffff      \n   0000      \n 11dddd      \n111db0d      \n   dddd      \n"
+,	bhdead2 = "      ff\nfff   ff011\nffff  ff011 1\nfffff0ff00001\n fffff0ff000\n  fffffff000\n   ffffff00\n     ffff0\n      ffff\n      0000\n      dddd11\n      d0bd111\n      dddd\n"
+,	birdhunt = "eeeeee333ee33eeeeee333eeeeee33\neeeeeee33ee33eeeeeee33eeeeeee3\nee333ee33ee33ee333ee33ee333eee\nee333ee33ee33ee333ee33ee3333ee\neeeeee333ee33eeeeee333ee3333ee\neeeeeee33ee33eeeee3333ee3333ee\nee333ee33ee33ee33ee333ee3333ee\nee333ee33ee33ee33ee333ee333eee\neeeeeee33ee33ee333ee33eeeeeee3\neeeeee333ee33ee333ee33eeeeee33\n333333333333333333333333333333\n333333333333333333333333333333\nee33ee33ee33ee33ee333ee3eeeeee\nee33ee33ee33ee33eee33ee333ee33\nee33ee33ee33ee33eee33ee333ee33\neeeeee33ee33ee33ee3e3ee333ee33\nee33ee33ee33ee33ee3e3ee333ee33\nee33ee33ee33ee33ee33eee333ee33\nee33ee33ee33ee33ee33eee333ee33\nee33ee333eeee333ee333ee333ee33\n333333333333333333353333333333\n333333333333333553353333333355\n533333333333555553355333553355\n533533535533555553355333553555\n555533535535555555355335555555\nd5555553553555555555555555555d\nd555555555555d555555555555d55d\ndd5d55555d555dd555d555d555d5dd\ndd5ddddd5ddd5dd5ddddd5d5dddddd\ndd5ddddddddd5dddddddd5d5dddddd\ndd5ddddddddd5dddddddd5dddddddd\ndd5ddddddddddddddddddddddddddd\ndddddddddddddddddddddddddddddd\n"
+}
+-- Global variables
+local mode = 1
+local quit = false
+
+-- Save data functions
+
+local savedata = {drdantopscore = 0, stackerdxtopscore = 0, birdhunttopscore = 0}
+local savedatapath = fs.getDir(shell.getRunningProgram()).."/3gpsave.sav"
+
+local function save()
+	local handle = fs.open(savedatapath, "w")
+	if not handle then return end
+	handle.write(textutils.serialize(savedata))
+	handle.close()
+end
+
+local function loadSave()
+	local handle = fs.open(savedatapath, "r")
+	if not handle then
+		save()
+		return
+	end
+	local data = textutils.unserialize(handle.readAll())
+	handle.close()
+	local legit = true
+	if type(data) ~= "table" then
+		legit = false
+	end
+	if not legit then
+		fs.delete(savedatapath)
+		save()
+	else
+		savedata = data
+	end
+end
+
+-- Graphics functions
+
+local colorhex, smallchar = { }, { }
+local buffer = { }
+
+local function clearScreen(color)
+	for i = 1, 102 * 57 do
+		buffer[i] = color
+	end
+end
+
+local screenendline = 1, 19
+
+local function renderScreen()
+	local commands, charline, mainline, subline, index, sub, char, c1, c2, c3, c4, c5, c6 = { }, { }, { }, { }, nil, 32768
+	for j = 0, 18 do		
+		for i = 0, 50 do
+			index = (j * 3) * 102 + (i * 2)
+			c1, c2, c3, c4, c5, c6 = buffer[index + 1], buffer[index + 2], buffer[index + 103], buffer[index + 104], buffer[index + 205], buffer[index + 206]
+			char = 0
+			if c1 ~= c6 then
+				sub = c1
+				char = 1
+			end
+			if c2 ~= c6 then
+				sub = c2
+				char = char + 2
+			end
+			if c3 ~= c6 then
+				sub = c3
+				char = char + 4
+			end
+			if c4 ~= c6 then
+				sub = c4
+				char = char + 8
+			end
+			if c5 ~= c6 then
+				sub = c5
+				char = char + 16
+			end
+			charline[i + 1] = smallchar[char + 1]
+			mainline[i + 1] = colorhex[c6]
+			subline[i + 1] = colorhex[sub]
+		end
+		commands[#commands + 1] = table.concat(charline)
+		commands[#commands + 1] = table.concat(subline)
+		commands[#commands + 1] = table.concat(mainline)
+	end
+	for i = 1 + screenoffset, screenendline do
+		term.setCursorPos(1, i - screenoffset)
+		term.blit(commands[i * 3 - 2], commands[i * 3 - 1], commands[i * 3])
+	end
+end
+
+local function drawImage(image, x, y, color, sx, swidth)
+	sx, swidth = sx or 0, swidth or 9999
+	local ix, iy, c = 0, 0
+	for i = 1, #image do
+		c = image[i]
+		if c then
+			if c ~= 0 and ix >= sx and ix < sx + swidth and (x + ix - sx) >= 0 and (y + iy) >= 0 and (x + ix - sx) < 102 and (y + iy) < 57 then
+				buffer[(y + iy) * 102 + x + ix - sx + 1] = color or c
+			end
+			ix = ix + 1
+		else
+			ix = 0
+			iy = iy + 1
+		end
+	end
+end
+
+local function drawText(text, x, y, font, charwidth, offset, color)
+	for i = 1, #text do
+		local c = string.byte(text, i)
+		if c >= offset then
+			drawImage(font, x + (i - 1) * (charwidth + 1), y, color, (c - offset) * (charwidth + 1), charwidth)
+		end
+	end
+end
+
+local function drawRect(color, x, y, width, height)
+	if x < 0 then
+		width = width + x
+		x = 0
+	end
+	if y < 0 then
+		height = height + y
+		y = 0
+	end
+	if x + width > 102 then
+		width = 102 - x
+	end
+	if y + height > 57 then
+		height = 57 - y
+	end
+	for j = 0, height - 1 do
+		for i = 0, width - 1 do 
+			buffer[(j + y) * 102 + i + x + 1] = color
+		end
+	end
+end
+
+-- Intro
+
+local introstep = 0
+
+local function updateIntro()
+	introstep = introstep + 1
+	local i = introstep
+	if i <= 106 then
+		clearScreen(colors.blue)
+		for j = 0, 101 do
+			local y = math.floor(math.sin(i / 7 + j / 17) * 7 + 0.5) + 43
+			if i > 60 then
+			y = y - (i - 60) * 3
+			end
+			if y < 0 then y = 0 end 
+			for k = y, 56 do
+				buffer[k * 102 + j + 1] = 512
+			end
+		end
+		drawImage(img.crazed, 43, 23)
+		drawImage(img.madeby, 31, 11)
+		if i >= 75 then
+			local gray = math.floor(56 - (i - 75) * 3.5)
+			local black = math.floor(56 - (i - 90) * 3.5)
+			if gray < 0 then gray = 0 end
+			if black < 0 then black = 0 end
+			for j = 0, 101 do
+				for k = gray, 56 do
+					buffer[k * 102 + j + 1] = 128
+				end
+				if black < 57 then
+					for k = black, 56 do
+						buffer[k * 102 + j + 1] = 32768
+					end
+				end
+			end
+		end
+		
+		if i <= 19 then
+			term.scroll(-1)
+			screenendline = i
+		end
+	elseif i >= 107 and i <= 112 then
+		local flash = {colors.gray, colors.white, colors.white, colors.lightGray, colors.gray, colors.gray}
+		clearScreen(flash[i - 106])
+	else
+		mode = 2
+	end
+end
+
+local function keyIntro()
+	if mode == 1 then
+		mode = 2
+		screenendline = 19
+	end
+end
+
+local function clickIntro()
+	keyIntro()
+end
+
+-- Help
+
+-- Dr Dan
+
+local drdanmode, drdanplayfield, drdanvirus, drdanstep, drdanscore, drdanpill1, drdanpill2, drdannextpill1, drdannextpill2
+local drdanpillx1
+local drdanpillx2
+local drdanpilly1
+local drdanpilly2
+local drdankeyleft
+local drdankeyright
+local drdankeytapleft
+local drdankeytapright
+local drdankeydown
+local drdancombo
+local drdanviruslevel = 1
+local drdanspeed = 3
+local drdancolors = {colors.red, colors.yellow, colors.blue}
+
+local function initDrDan()
+	drdanmode, drdankeyleft, drdankeyright, drdankeydown = false, false, false, false
+	drdanvirus = 0
+	drdanstep = 0
+	drdanscore = 0
+	drdanplayfield = { }
+	drdannextpill1 = math.floor(1 + math.random() * 3)
+	drdannextpill2 = math.floor(1 + math.random() * 3)
+end
+
+local function updateInitLevelDrDan()
+	local totalvirus = math.floor(drdanviruslevel * 1.5) + 1
+	local miny = 12 - math.floor(drdanviruslevel / 20 * 5)
+	if drdanvirus < totalvirus then
+		while true do
+			local x, y = math.floor(math.random() * 8), math.floor(miny + math.random() * (16 - miny))
+			if drdanplayfield[(y * 8 + x) * 2 + 2] ~= 1 then
+				drdanplayfield[(y * 8 + x) * 2 + 1] = math.floor(1 + math.random() * 3)
+				drdanplayfield[(y * 8 + x) * 2 + 2] = 1
+				drdanvirus = drdanvirus + 1
+				break
+			end
+		end
+	else
+		drdankeydown = false
+		drdanmode = 2
+	end
+end
+
+local function updateInitGameDrDan()
+	if drdanvirus == 0 then
+		drdanplayfield = { }
+		drdanscore = drdanscore + drdanviruslevel * 5 + drdanspeed
+		drdanviruslevel = drdanviruslevel + 1
+		drdanmode = 1
+		return
+	end
+	drdanpill1 = drdannextpill1
+	drdanpill2 = drdannextpill2
+	drdanori = 1
+	drdanpillx1 = 3
+	drdanpilly1 = 0
+	drdanpillx2 = 4
+	drdanpilly2 = 0
+	drdannextpill1 = math.floor(1 + math.random() * 3)
+	drdannextpill2 = math.floor(1 + math.random() * 3)
+	if not (drdanplayfield[7] or drdanplayfield[9]) then
+		drdanmode = 3
+	else
+		if drdanscore > savedata.drdantopscore then
+			savedata.drdantopscore = drdanscore
+		end
+		drdanmode = 5
+		if drdanplayfield[7] then
+			drdanplayfield[9] = drdanpill2
+			drdanplayfield[10] = 4
+		else
+			drdanplayfield[7] = drdanpill1
+			drdanplayfield[8] = 3
+		end
+	end
+end
+
+local function checkRowsDrDan()
+	local color = drdanplayfield[1]
+	local ybegin = 0
+	local row = 0
+	local check = false
+	for i = 0, 7 do
+		for j = 0, 16 do
+			local c = drdanplayfield[(j * 8 + i) * 2 + 1]
+			if c ~= color then
+				if color and row >= 4 then
+					drdanscore = drdanscore + drdancombo * (1 + (row - 4) * 2)
+					for k = ybegin, j - 1 do
+						if drdanplayfield[(k * 8 + i) * 2 + 2] == 1 then
+							drdanvirus = drdanvirus - 1
+						elseif drdanplayfield[(k * 8 + i) * 2 + 2] == 3 then
+							if drdanplayfield[(k * 8 + i) * 2 + 4] == 4 then
+								drdanplayfield[(k * 8 + i) * 2 + 4] = 2
+							end
+						elseif drdanplayfield[(k * 8 + i) * 2 + 2] == 4 then
+							if drdanplayfield[(k * 8 + i) * 2] == 3 then
+								drdanplayfield[(k * 8 + i) * 2] = 2
+							end
+						end
+						drdanplayfield[(k * 8 + i) * 2 + 1] = nil
+						drdanplayfield[(k * 8 + i) * 2 + 2] = nil
+					end
+					check = true
+					drdancombo = drdancombo + 1
+				end
+				ybegin = j
+				row = 1
+				color = c
+			else
+				row = row + 1
+			end
+		end
+	end
+	return check
+end
+
+local function updateGameDrDan()
+	if drdankeydown or (drdanstep % (20 - drdanspeed * 2) == 0) then
+		local newy1 = drdanpilly1 + 1
+		local newy2 = drdanpilly2 + 1
+		if not (drdanplayfield[(newy1 * 8 + drdanpillx1) * 2 + 1] or drdanplayfield[(newy2 * 8 + drdanpillx2) * 2 + 1]) then
+			drdanpilly1 = newy1
+			drdanpilly2 = newy2
+		end
+	end
+	if (drdankeyleft or drdankeytapleft) and (drdanstep % 2 == 0) then
+		drdankeytapleft = false
+		if drdanpillx1 > 0 and drdanpillx2 > 0 then
+			local newx1 = drdanpillx1 - 1
+			local newx2 = drdanpillx2 - 1
+			if not (drdanplayfield[(drdanpilly1 * 8 + newx1) * 2 + 1] or drdanplayfield[(drdanpilly2 * 8 + newx2) * 2 + 1]) then
+				drdanpillx1 = newx1
+				drdanpillx2 = newx2
+			end
+		end
+	end
+	if (drdankeyright or drdankeytapright) and (drdanstep % 2 == 0) then
+		drdankeytapright = false
+		if drdanpillx1 < 7 and drdanpillx2 < 7 then
+			local newx1 = drdanpillx1 + 1
+			local newx2 = drdanpillx2 + 1
+			if not (drdanplayfield[(drdanpilly1 * 8 + newx1) * 2 + 1] or drdanplayfield[(drdanpilly2 * 8 + newx2) * 2 + 1]) then
+				drdanpillx1 = newx1
+				drdanpillx2 = newx2
+			end
+		end
+	end
+	if drdanpilly1 == 15 or drdanpilly2 == 15 or drdanplayfield[((drdanpilly1 + 1) * 8 + drdanpillx1) * 2 + 1] or drdanplayfield[((drdanpilly2 + 1) * 8 + drdanpillx2) * 2 + 1] then
+		drdanplayfield[(drdanpilly1 * 8 + drdanpillx1) * 2 + 1] = drdanpill1
+		drdanplayfield[(drdanpilly1 * 8 + drdanpillx1) * 2 + 2] = 3
+		drdanplayfield[(drdanpilly2 * 8 + drdanpillx2) * 2 + 1] = drdanpill2
+		drdanplayfield[(drdanpilly2 * 8 + drdanpillx2) * 2 + 2] = 4
+		drdancombo = 1
+		if checkRowsDrDan() then
+			drdanmode = 4
+		else
+			drdanmode = 2
+		end
+	end
+end
+
+local function fallDrDan()
+	if drdanstep % 4 == 0 then
+		local check = false
+		for i = 0, 7 do
+			for j = 14, 0, -1 do
+				if drdanplayfield[(j * 8 + i) * 2 + 2] == 2 and not drdanplayfield[((j + 1) * 8 + i) * 2 + 2] then
+					local color = drdanplayfield[(j * 8 + i) * 2 + 1]
+					drdanplayfield[(j * 8 + i) * 2 + 1] = nil
+					drdanplayfield[(j * 8 + i) * 2 + 2] = nil
+					drdanplayfield[((j + 1) * 8 + i) * 2 + 1] = color
+					drdanplayfield[((j + 1) * 8 + i) * 2 + 2] = 2
+					check = true
+				end
+			end
+		end
+		if not (check or checkRowsDrDan()) then
+			drdanmode = 2
+		end
+	end
+end
+
+local function drawDrDanSetup()
+	for j = 0, 56 do
+		for i = 0, 101 do
+			buffer[j * 102 + i + 1] = ((i % 4 < 2) == not (j % 6 < 3)) and 16384 or 2
+		end
+	end
+	drawRect(colors.black, 21, 6, 60, 48)
+	for i = 0, 15 do
+		drawImage(img.leftsidepinkpipe, 18, 6 + i * 3)
+		drawImage(img.rightsidepinkpipe, 81, 6 + i * 3)
+	end
+	for i = 0, 30 do
+		drawImage(img.bottomsidepinkpipe, 20 + i * 2, 54)
+		drawImage(img.topsidepinkpipe, 20 + i * 2, 3)
+	end
+	drawImage(img.lefttoppinkpipe, 18, 3)
+	drawImage(img.righttoppinkpipe, 82, 3)
+	drawImage(img.leftbottompinkpipe, 18, 54)
+	drawImage(img.rightbottompinkpipe, 82, 54)
+	drawText("DR DAN", 36, 7, img.font2, 4, 65, colors.lightBlue)
+	drawText("VIRUS LEVEL", 24, 15, img.font2, 4, 65)
+	drawText(string.format("%02d", drdanviruslevel), 46, 22, img.font1, 4, 48, colors.red)
+	drawImage(img.decreasearrow, 41, 22)
+	drawImage(img.increasearrow, 57, 22)
+	drawText("SPEED", 39, 31, img.font2, 4, 65)
+	drawText(tostring(drdanspeed), 49, 38, img.font1, 4, 48, colors.red)
+	drawImage(img.decreasearrow, 44, 38)
+	drawImage(img.increasearrow, 55, 38)
+	drawRect(colors.white, 38, 45, 26, 7)
+	drawText("START", 39, 46, img.font2, 4, 65, colors.black)
+end
+
+local function drawDrDanPlayfield()
+	for j = 0, 56 do
+		for i = 0, 101 do
+			buffer[j * 102 + i + 1] = ((i % 4 < 2) == not (j % 6 < 3)) and 128 or 256
+		end
+	end
+	drawRect(colors.black, 42, 6, 16, 48)
+	for i = 0, 15 do
+		drawImage(img.leftsidecyanpipe, 38, 6 + i * 3)
+		drawImage(img.rightsidecyanpipe, 58, 6 + i * 3)
+	end
+	for i = 0, 7 do
+		drawImage(img.bottomsidecyanpipe, 42 + i * 2, 54)
+		drawImage(img.topsidecyanpipe, 42 + i * 2, 3)
+	end
+	for j = 0, 15 do
+		for i = 0, 7 do
+			local v, t = drdanplayfield[(j * 8 + i) * 2 + 1], drdanplayfield[(j * 8 + i) * 2 + 2]
+			if v then
+				if t == 1 then
+					drawImage((math.floor(drdanstep / 8 + i + j) % 2 == 0) and img.drdanvirus1 or img.drdanvirus2, 42 + i * 2, 6 + j * 3, drdancolors[v])
+				elseif t == 2 then
+					drawImage(img.drdanblob, 42 + i * 2, 6 + j * 3, drdancolors[v])
+				elseif t == 3 then
+					drawImage(img.drdanpillleft, 42 + i * 2, 6 + j * 3, drdancolors[v])
+				elseif t == 4 then
+					drawImage(img.drdanpillright, 42 + i * 2, 6 + j * 3, drdancolors[v])
+				end
+			end
+		end
+	end
+	if drdanmode == 3 and drdanpillx1 and drdanpilly1 then 
+		drawImage(img.drdanpillleft, 42 + drdanpillx1 * 2, 6 + drdanpilly1 * 3, drdancolors[drdanpill1])
+		drawImage(img.drdanpillright, 42 + drdanpillx2 * 2, 6 + drdanpilly2 * 3, drdancolors[drdanpill2])
+	end
+	drawImage(img.lefttopcyanpipe, 38, 3)
+	drawImage(img.righttopcyanpipe, 58, 3)
+	drawImage(img.leftbottomcyanpipe, 38, 54)
+	drawImage(img.rightbottomcyanpipe, 58, 54)
+	drawRect(colors.orange, 4, 5, 32, 16)
+	drawRect(colors.black, 5, 6, 30, 15)
+	drawImage(img.drdandrdan, 7, 8)
+	drawImage(img.drdanbigpillleft, 22, 9, drdancolors[drdannextpill1])
+	drawImage(img.drdanbigpillright, 26, 9, drdancolors[drdannextpill2])
+	drawRect(colors.yellow, 4, 21, 32, 33)
+	drawRect(colors.lightBlue, 6, 22, 28, 31)
+	drawImage(img.drdantop, 7, 25)
+	drawText(string.format("%05d", savedata.drdantopscore), 9, 31, img.font1, 4, 48, colors.black)
+	drawImage(img.drdanscore, 7, 39)
+	drawText(string.format("%05d", drdanscore), 9, 45, img.font1, 4, 48, colors.black)
+	drawRect(colors.yellow, 64, 6, 32, 48)
+	drawRect(colors.lightBlue, 66, 7, 28, 46)
+	if drdanmode ~= 5 then
+		drawImage(img.drdanlevel, 67, 10)
+		drawText(string.format("%02d", drdanviruslevel), 84, 16, img.font1, 4, 48, colors.black)
+		drawImage(img.drdanspeed, 67, 24)
+		drawText(string.format("%01d", drdanspeed), 89, 30, img.font1, 4, 48, colors.black)
+		drawImage(img.drdanvirus, 67, 38)
+		drawText(string.format("%02d", drdanvirus), 84, 44, img.font1, 4, 48, colors.black)
+	else
+		drawText("GAME", 70, 22, img.font2, 4, 65, colors.black)
+		drawText("OVER", 70, 31, img.font2, 4, 65, colors.black)
+	end
+end
+
+local function updateDrDan()
+	drdanstep = drdanstep + 1
+	if not drdanmode then
+		drawDrDanSetup()
+	else
+		if drdanmode == 1 then
+			updateInitLevelDrDan()
+		elseif drdanmode == 2 then
+			updateInitGameDrDan()
+		elseif drdanmode == 3 then
+			updateGameDrDan()
+		elseif drdanmode == 4 then
+			fallDrDan()
+		end
+		drawDrDanPlayfield()
+	end
+end
+
+local function clickDrDan(x, y)
+	if not drdanmode then
+		if y == 8 or y == 9 then
+			if x == 21 or x == 22 then
+				if drdanviruslevel > 1 then
+					drdanviruslevel = drdanviruslevel - 1
+				end
+			elseif x == 29 or x == 30 then
+				if drdanviruslevel < 20 then
+					drdanviruslevel = drdanviruslevel + 1
+				end
+			end
+		elseif y >= 13 and y <= 15 then
+			if x == 23 or x == 24 then
+				if drdanspeed > 1 then
+					drdanspeed = drdanspeed - 1
+				end
+			elseif x == 28 or x == 29 then
+				if drdanspeed < 9 then
+					drdanspeed = drdanspeed + 1
+				end
+			end
+		elseif y >= 16 and y <= 18 and x >= 20 and x <= 32 then
+			drdanmode = 1
+		end
+	elseif drdanmode == 5 then
+		initDrDan()
+		drdanmode = false
+	end
+end
+
+local function keyDrDan(key, hold)
+	if drdanmode == 5 then
+		initDrDan()
+		drdanmode = false
+	end
+	if key == 203 then
+		drdankeyleft = true
+		drdankeytapleft = true
+	elseif key == 205 then
+		drdankeyright = true
+		drdankeytapright = true
+	elseif key == 208 then
+		drdankeydown = true
+	elseif key == 57 and not hold and drdanmode == 3 then
+		local temp = drdanpill1
+		drdanpill1 = drdanpill2
+		drdanpill2 = temp
+	end
+end
+
+local function keyUpDrDan(key)
+	if key == 203 then
+		drdankeyleft = false
+	elseif key == 205 then
+		drdankeyright = false
+	elseif key == 208 then
+		drdankeydown = false
+	end
+end
+
+-- Stacker DX
+local sdxmode
+local sdxstep
+local sdxcamera
+local sdxheight
+local sdxwidth
+local sdxpos
+local sdxleft, sdxright
+local sdxscore
+
+local function initStackerDX()
+	sdxmode = 1
+	sdxstep = 0
+	sdxcamera = 47
+	sdxheight = 2
+	sdxleft = {35, 35}
+	sdxright = {66, 66}
+	sdxwidth = 32
+	sdxpos = 20
+	sdxscore = 0
+end
+
+local function updateStackerDX()
+	sdxstep = sdxstep + 1
+	for j = 0, 56 do
+		local height = sdxcamera - j
+		local color
+		if height < 3 then
+			color = colors.green
+		elseif height < 9 then
+			color = colors.lime
+		elseif height < 57 then
+			color = colors.lightBlue
+		elseif height < 81 then
+			color = colors.cyan
+		elseif height < 111 then
+			color = colors.blue
+		elseif height < 150 then
+			color = colors.black
+		end
+		for i = 0, 101 do
+			buffer[j * 102 + i + 1] = color
+		end
+		if sdxleft[height + 1] then
+			for i = sdxleft[height + 1], sdxright[height + 1] do
+				buffer[j * 102 + i + 1] = 1
+			end
+		end
+	end
+	drawImage(img.drdanscore, 9, 5, colors.lightGray)
+	drawText(string.format("%05d", sdxscore), 9, 12, img.font1, 4, 48)
+	drawImage(img.drdantop, 74, 5, colors.lightGray)
+	drawText(string.format("%05d", savedata.stackerdxtopscore), 69, 12, img.font1, 4, 48)
+	if sdxmode == 1 then
+		if math.floor(sdxstep % 1.5) == 0 then
+			sdxpos = sdxpos + 1
+		end
+		if sdxpos + sdxwidth > 100 then
+			sdxmode = 2
+			return
+		end
+		
+		local xmax = sdxpos + sdxwidth - 1
+		if xmax > 101 then xmax = 101 end
+		local height = sdxcamera - sdxheight
+		for i = sdxpos, xmax do
+			buffer[height * 102 + i + 1] = 1
+		end
+	else
+		if sdxscore > savedata.stackerdxtopscore then
+			savedata.stackerdxtopscore = sdxscore
+		end
+		drawText("GAME OVER", 30, 22, img.font2, 4, 65, (math.floor(sdxstep / 5) % 2 == 0) and colors.gray or colors.lightGray)
+	end
+end
+
+local function keyStackerDX(key, hold)
+	if key == 57 and not hold then
+		if sdxmode == 1 then
+			local x1 = sdxpos
+			local x2 = sdxpos + sdxwidth - 1
+			if x2 < sdxleft[sdxheight] or x1 > sdxright[sdxheight] then
+				sdxmode = 2
+				return
+			end
+			if x1 < sdxleft[sdxheight] then x1 = sdxleft[sdxheight] end
+			if x2 > sdxright[sdxheight] then x2 = sdxright[sdxheight] end
+			sdxscore = sdxscore + 5 + math.floor(sdxheight / 5)
+			sdxheight = sdxheight + 1
+			sdxleft[sdxheight] = x1
+			sdxright[sdxheight] = x2
+			sdxwidth = x2 - x1 + 1
+			sdxpos = x1 - 20
+			sdxcamera = math.floor((sdxheight + 30) / 3) * 3 + 2
+			if sdxcamera < 47 then
+				sdxcamera = 47
+			end
+		else
+			initStackerDX()
+		end
+	end
+end
+
+-- Bird Hunt
+
+local bhlightgrassheights
+local bhdarkgrassheights
+local bhbirds
+local bhdeadbirds
+local bhmode
+local bhwave
+local bhscore
+local bhblackscreen
+local bhblackscreenboxx
+local bhblackscreenboxy
+local bhshots
+local bhlives
+local bhstep = 0
+
+local function initBirdHunt()
+	bhlightgrassheights = { }
+	for i = 1, 102 do
+		bhlightgrassheights[i] = math.floor(40 + math.random() * 7)
+	end
+	bhdarkgrassheights = { }
+	for i = 1, 102 do
+		bhdarkgrassheights[i] = math.floor(45 + math.random() * 10)
+	end
+	
+	bhbirds = { }
+	bhdeadbirds = { }
+	bhmode = 1
+	bhwave = 0
+	bhscore = 0
+	bhlives = 4
+end
+
+local function initWaveBirdHunt()
+	bhbirds = { }
+	bhwave = bhwave + 1
+	local birds = math.floor((bhwave - 1) / 3) + 1
+	for i = 1, birds do
+		local bird = { }
+		bird.x = math.floor(math.random() * 80)
+		bird.y = 70 + math.random() * 85 * birds
+		bird.speed = 2.5 + ((bhwave - 1) % 3) * 0.2 + math.random() * 0.2 + bhwave * 0.03
+		bird.frame = math.floor(math.random() * 3) + 1
+		bhbirds[i] = bird
+	end
+	bhmode = 2
+	bhshots = math.floor(bhwave / 3) + 2
+end
+
+local function updateGameBirdHunt()
+	if #bhbirds == 0 and #bhdeadbirds == 0 then
+		bhmode = 1
+		return
+	end
+	local maxy = -100
+	for i = 1, #bhbirds do
+		local bird = bhbirds[i]
+		bird.y = bird.y - bird.speed
+		if bird.y > maxy then
+			maxy = bird.y
+		end
+		if math.floor(bhstep * 3) % 2 == 0 then
+			bird.frame = bird.frame % 3 + 1
+		end
+	end
+	if maxy < -20 and #bhdeadbirds == 0 then
+		bhmode = 3
+	end
+	local i = 1
+	while i <= #bhdeadbirds do
+		bhdeadbirds[i].y = bhdeadbirds[i].y + 2
+		bhdeadbirds[i].frame = bhdeadbirds[i].frame + 1
+		if bhdeadbirds[i].y > 80 then
+			table.remove(bhdeadbirds, i)
+			i = i - 1
+		end
+		i = i + 1
+	end
+end
+
+local function updateDeadBirdHunt()
+	bhlives = bhlives - 1
+	if bhlives > 0 then
+		bhmode = 1
+	else
+		bhmode = 4
+	end
+end
+
+local function updateGameOverBirdHunt()
+	if savedata.birdhunttopscore < bhscore then
+		savedata.birdhunttopscore = bhscore
+	end
+end
+
+local function drawPlayfieldBirdHunt()
+	if bhblackscreen then
+		clearScreen(colors.black)
+		for i = 1, #bhbirds do
+			drawRect(colors.white, bhbirds[i].x, math.floor(bhbirds[i].y), 22, 13)
+		end
+		if bhblackscreenboxx then
+			drawRect(colors.red, bhblackscreenboxx, math.floor(bhblackscreenboxy), 22, 13)
+		end
+	else
+		clearScreen(colors.lightBlue)
+		for i = 1, #bhbirds do
+			local bird = bhbirds[i]
+			local birdimg = img.bhbird1
+			if bird.frame == 2 then
+				birdimg = img.bhbird2
+			elseif bird.frame == 3 then
+				birdimg = img.bhbird3
+			end
+			if bird.y < 57 then
+				drawImage(birdimg, bird.x, math.floor(bird.y))
+			end
+		end
+		for i = 1, #bhdeadbirds do
+			drawImage((math.floor(bhdeadbirds[i].frame / 4) % 2 == 0) and img.bhdead1 or img.bhdead2, bhdeadbirds[i].x, math.floor(bhdeadbirds[i].y))
+		end
+		for i = 0, 101 do
+			for j = bhlightgrassheights[i + 1], bhdarkgrassheights[i + 1] - 1 do
+				buffer[j * 102 + i + 1] = 32
+			end
+			for j = bhdarkgrassheights[i + 1], 56 do
+				buffer[j * 102 + i + 1] = 8192
+			end
+		end
+	end
+	if bhmode == 2 then
+		drawText(string.format("%01d", bhshots), 90, 10, img.font1, 4, 48, colors.gray)
+		drawText(string.format("%01d", bhlives), 8, 10, img.font1, 4, 48, colors.blue)
+	elseif bhmode == 4 then
+		drawText("GAME OVER", 30, 8, img.font2, 4, 65, (math.floor(bhstep / 5) % 2 == 0) and colors.black or colors.white)
+		drawText("SHOT   TOP", 25, 16, img.font2, 4, 65, colors.gray)
+		drawText(string.format("%04d", bhscore), 25, 23, img.font1, 4, 48, colors.gray)
+		drawText(string.format("%04d", savedata.birdhunttopscore), 60, 23, img.font1, 4, 48, colors.gray)
+	end
+	bhblackscreen = false
+	bhblackscreenboxx = false
+end
+
+local function updateBirdHunt()
+	bhstep = bhstep + 1
+	if bhmode == 1 then
+		initWaveBirdHunt()
+	elseif bhmode == 2 then
+		updateGameBirdHunt()
+	elseif bhmode == 3 then
+		updateDeadBirdHunt()
+	elseif bhmode == 4 then	
+		updateGameOverBirdHunt()
+	end
+	drawPlayfieldBirdHunt()
+end
+
+local function clickBirdHunt(x, y)
+	if bhmode == 2 and bhshots > 0 then
+		local sx, sy = (x - 1) * 2 + 1, (y - 1) * 3 + 1
+		local totalbirds = #bhbirds
+		for i = 1, #bhbirds do
+			local bird = bhbirds[i]
+			if sx >= bird.x - 1 and sy >= bird.y - 1 and sx < bird.x + 24 and sy < bird.y + 15 then
+				bhbirds[i] = nil
+				bhscore = bhscore + 1
+				local dead = { }
+				dead.x = bird.x + 3
+				dead.y = bird.y
+				dead.frame = 0
+				bhdeadbirds[#bhdeadbirds + 1] = dead
+				local tempbirds = bhbirds
+				local newbirds = { }
+				for j = 1, totalbirds do
+					if tempbirds[j] then
+						newbirds[#newbirds + 1] = tempbirds[j]
+					end
+				end
+				bhbirds = newbirds
+				bhblackscreenboxx = bird.x
+				bhblackscreenboxy = bird.y
+				break
+			end
+		end
+		bhshots = bhshots - 1
+		bhblackscreen = true
+	elseif bhmode == 4 then
+		initBirdHunt()
+		bhmode = 1
+	end
+end
+
+-- Help
+
+local helpscroll = 0
+local helplines = {
+	"THREE GAME PAK"
+,	"BY CRAZEDPROGRAMMER"
+,	""
+,	"USE THE SCROLL WHEEL"
+,	"TO NAVIGATE"
+,	""
+,	"CONTROLS"
+,	""
+,	"GENERAL"
+,	""
+,	" DELETE"
+,	"  CLOSE THE PROGRAM"
+,	" BACKSPACE"
+,	"  RETURN TO MAIN"
+,	"  MENU"
+,	""
+,	"DR DAN"
+,	""
+,	" LEFT OR RIGHT ARROW"
+,	"  MOVE THE PILL LEFT"
+,	"  OR RIGHT"
+,	" SPACEBAR"
+,	"  SWAP THE COLOURS"
+,	"  OF THE PILL"
+,	" ANY KEY"
+,	"  WHEN YOU LOSE"
+,	"  RESTART THE GAME"
+,	""
+,	"STACKER DX"
+,	""
+,	" SPACEBAR"
+,	"  PLACE THE PLANE ON"
+,	"  TOP OF THE TOWER"
+,	" ANY KEY"
+,	"  WHEN YOU LOSE"
+,	"  RESTART THE GAME"
+,	""
+,	"BIRD HUNT"
+,	""
+,	" CLICK"
+,	"  SHOOT AT THE MOUSE"
+,	"  POSITION"
+,	"  IF YOU HIT A DUCK"
+,	"  YOU WILL SEE A"
+,	"  RED BOX"
+,	""
+,	" CLICK ANYWHERE"
+,	"  WHEN YOU LOSE"
+,	"  RESTART THE GAME"
+}
+local function updateHelp()
+	clearScreen(colors.gray)
+	for i = 0, 8 do
+		if helplines[i + helpscroll] then
+			drawText(helplines[i + helpscroll], 2, 1 + i * 6, img.font2, 4, 65, colors.white)
+		end
+	end
+end
+
+local function keyHelp(key)
+	
+end
+
+local function mouseScrollHelp(scroll)
+	helpscroll = helpscroll + scroll
+end
+
+-- Main Menu
+
+local function updateMainMenu()
+	clearScreen(colors.black)
+	drawImage(img.title1, 12, 3)
+	drawImage(img.title2, 26, 7)
+	drawImage(img.title3, 66, 7)
+	drawImage(img.help, 32, 51)
+	drawImage(img.exit, 52, 51)
+	drawImage(img.drdan, 2, 21)
+	drawImage(img.stackerdx, 36, 21)
+	drawImage(img.birdhunt, 70, 21)
+end
+
+local function clickMainMenu(x, y)
+	if y >= 18 and y <= 19 then
+		if x >= 17 and x <= 25 then
+			mode = 3
+		elseif x >= 27 and x <= 35 then
+			quit = true
+		end
+	end
+	if y >= 8 and y <= 18 then
+		if x >= 2 and x <= 16 then
+			initDrDan()
+			mode = 4
+		elseif x >= 36 and x <= 50 then
+			initBirdHunt()
+			mode = 6
+		end
+	end
+	if y >= 8 and y <= 16 and x >= 19 and x <= 33 then
+		initStackerDX()
+		mode = 5
+	end
+end
+
+-- Event passers
+local function passTimer()
+	if mode == 1 then
+		updateIntro()
+	elseif mode == 2 then
+		updateMainMenu()
+	elseif mode == 3 then
+		updateHelp()
+	elseif mode == 4 then
+		updateDrDan()
+	elseif mode == 5 then
+		updateStackerDX()
+	elseif mode == 6 then
+		updateBirdHunt()
+	end
+end
+
+local function passKey(key, hold)
+	if key == 211 then
+		quit = true
+	elseif key == 14 then
+		mode = 2
+	elseif mode == 1 then
+		keyIntro()
+	elseif mode == 3 then
+		keyHelp(key, hold)
+	elseif mode == 4 then
+		keyDrDan(key, hold)
+	elseif mode == 5 then
+		keyStackerDX(key, hold)
+	end
+end
+
+local function passKeyUp(key)
+	if mode == 4 then
+		keyUpDrDan(key)
+	end
+end
+
+local function passClick(button, x, y)
+	if mode == 1 then
+		clickIntro()
+	elseif mode == 2 then
+		clickMainMenu(x, y)
+	elseif mode == 4 then
+		clickDrDan(x, y)
+	elseif mode == 6 then
+		clickBirdHunt(x, y)
+	end
+end
+
+-- Main program functions
+
+local function initProgram()
+	for i = 0, 15 do
+		colorhex[2 ^ i] = string.format("%01x", i)
+	end
+	for i = 1, 32 do
+		smallchar[i] = string.char(127 + i)
+	end
+	local tempimg = { }
+	for k, v in pairs(img) do
+		local image = { }
+		for i = 1, #v do
+			local c = v:sub(i, i)
+			if c == "\n" then
+				image[#image + 1] = false
+			elseif c ~= "\r" then
+				local num = tonumber(c, 16)
+				if num then
+					image[#image + 1] = 2 ^ num
+				else
+					image[#image + 1] = 0
+				end
+			end
+		end
+		tempimg[k] = image
+	end
+	img = tempimg
+	loadSave()
+	--[[local dx, dy = x, y
+	for i = 1, #image do
+		local c = image:sub(i, i)
+		if c == "\n" then
+			dy = dy + 1
+			dx = x
+		elseif c ~= "\r" then
+			local number = tonumber(c, 16)
+			if number and dx >= 0 and dx < 102 and dy >= 0 and dy < 57 then
+				buffer[dy * 102 + dx + 1] = 2 ^ number
+			end
+			dx = dx + 1
+		end
+	end]]
+end
+
+local function runProgram()
+	local timer = os.startTimer(0)
+	while not quit do 
+		local e = {os.pullEventRaw()}
+		if e[1] == "timer" and e[2] == timer then
+			timer = os.startTimer(0)
+			passTimer()
+			renderScreen()
+		elseif e[1] == "key" then
+			passKey(e[2], e[3])
+		elseif e[1] == "key_up" then
+			passKeyUp(e[2])
+		elseif e[1] == "mouse_click" then
+			passClick(e[2], e[3], e[4] + screenoffset)
+		elseif e[1] == "mouse_scroll" and mode == 3 then
+			mouseScrollHelp(e[2])
+		elseif e[1] == "terminate" then
+			quit = true
+		end
+	end
+end
+
+local function quitProgram()
+	save()
+	term.setBackgroundColor(colors.black)
+	term.clear()
+	term.setCursorPos(1, 1)
+end
+
+
+
+
+-------------------------------------
+initProgram()
+runProgram()
+quitProgram()
